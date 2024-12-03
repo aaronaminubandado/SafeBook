@@ -1,16 +1,59 @@
+"use client";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield } from "lucide-react";
+import { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/config/firebaseConfiguration";
+import { doc, setDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Sign Up | SafeBook",
-  description: "Create your SafeBook account to start booking appointments",
-};
+// export const metadata: Metadata = {
+//   title: "Sign Up | SafeBook",
+//   description: "Create your SafeBook account to start booking appointments",
+// };
 
 export default function SignUp() {
+
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async(e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth,email,password,);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "users", user.uid),{
+          uid: user.uid,
+          name: name,
+          email: email,
+          created_At: new Date(),
+        })
+          
+        
+        router.push("/");
+
+    } catch (error) {
+      setError("Invalid email or password. Please try again.")
+    }
+
+
+  }
+
   return (
     <div className="container mx-auto flex flex-col items-center justify-center min-h-screen py-2">
       <div className="w-full max-w-md space-y-8">
@@ -23,7 +66,7 @@ export default function SignUp() {
             Sign up to start booking appointments with ease
           </p>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <Label htmlFor="name" className="text-gray-900 dark:text-white">
@@ -36,6 +79,7 @@ export default function SignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="John Doe"
+                onChange={e=>setName(e.target.value)}
               />
             </div>
             <div>
@@ -49,6 +93,7 @@ export default function SignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="john@example.com"
+                onChange={e=>setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -65,6 +110,7 @@ export default function SignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="••••••••"
+                onChange={e=>setPassword(e.target.value)}
               />
             </div>
             <div>
@@ -81,6 +127,7 @@ export default function SignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="••••••••"
+                onChange={e=>setConfirmPassword(e.target.value)}
               />
             </div>
           </div>
