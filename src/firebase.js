@@ -1,7 +1,7 @@
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "./firebase"; // Import your Firestore instance
 
-async function addBooking() {
+async function addUser() {
   try {
     const docRef = await addDoc(collection(db, "users"), {
       User_ID: "3",
@@ -12,6 +12,6 @@ async function addBooking() {
     });
     console.log("User added with ID: ", docRef.id);
   } catch (e) {
-    console.error("Error adding booking: ", e);
+    console.error("Error adding new user: ", e);
   }
 }
