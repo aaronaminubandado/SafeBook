@@ -19,7 +19,7 @@ Follow these steps to set up and run the SafeBook application locally.
 
 Make sure you have the following installed on your system:
 
-1. **Node.js** (v16 or later) - [Download Here](https://nodejs.org/)
+1. **Node.js** (v20 or later) - [Download Here](https://nodejs.org/)
 2. **npm** (comes with Node.js) or **yarn** - a package manager to install dependencies.
 3. **Git** - for cloning the repository.
 
