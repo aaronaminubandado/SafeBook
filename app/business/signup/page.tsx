@@ -1,18 +1,66 @@
+"use client";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/config/firebaseConfiguration";
 
 
-export const metadata: Metadata = {
-  title: "Business Sign Up | SafeBook",
-  description: "Create your SafeBook business account to manage appointments",
-};
+// export const metadata: Metadata = {
+//   title: "Business Sign Up | SafeBook",
+//   description: "Create your SafeBook business account to manage appointments",
+// };
 
 export default function BusinessSignUp() {
   
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState("");
+  const [contactPerson, setContactPerson] = useState("");
+  const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async(e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth,email,password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "users", user.uid),{
+          uid: user.uid,
+          businessName:businessName,
+          businessType:businessType,
+          contactPerson:contactPerson,
+          phoneNumber:phoneNumber,
+          email:email,
+          role:"business",
+          created_At: new Date(),
+        })
+          
+        
+        router.push("/");
+
+    } catch (error) {
+      setError("Invalid email or password. Please try again.")
+    }
+
+
+  }
 
   return (
     <div className="container mx-auto flex flex-col items-center justify-center min-h-screen py-2">
@@ -26,7 +74,7 @@ export default function BusinessSignUp() {
             Sign up to start managing appointments with SafeBook
           </p>
         </div>
-        <form className="mt-8 space-y-6" action="#" >
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} >
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <Label
@@ -41,7 +89,8 @@ export default function BusinessSignUp() {
                 type="text"
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                placeholder="Acme Inc."
+                placeholder="Jenny's Hair Salon"
+                onChange={e=>setBusinessName(e.target.value)}
               />
             </div>
             <div>
@@ -57,7 +106,8 @@ export default function BusinessSignUp() {
                 type="text"
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                placeholder="e.g., Salon, Dental Clinic, Consulting"
+                placeholder="e.g., Salon, Barber, Consulting"
+                onChange={e=>setBusinessType(e.target.value)}
               />
             </div>
             <div>
@@ -74,6 +124,7 @@ export default function BusinessSignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="John Doe"
+                onChange={e=>setContactPerson(e.target.value)}
               />
             </div>
             <div>
@@ -87,6 +138,7 @@ export default function BusinessSignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="contact@acmeinc.com"
+                onChange={e=>setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -99,7 +151,8 @@ export default function BusinessSignUp() {
                 type="tel"
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                placeholder="+1 (555) 123-4567"
+                placeholder="+90 (535) 123-4567"
+                onChange={e=>setPhoneNumber(e.target.value)}
               />
             </div>
             <div>
@@ -116,6 +169,7 @@ export default function BusinessSignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="••••••••"
+                onChange={e=>setPassword(e.target.value)}
               />
             </div>
             <div>
@@ -132,6 +186,7 @@ export default function BusinessSignUp() {
                 required
                 className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="••••••••"
+                onChange={e=>setConfirmPassword(e.target.value)}
               />
             </div>
           </div>
@@ -149,7 +204,7 @@ export default function BusinessSignUp() {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Already have a business account?{" "}
             <Link
-              href="/business/login"
+              href="/login"
               className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Log in
