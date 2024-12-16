@@ -41,6 +41,7 @@ export default function SignUp() {
           uid: user.uid,
           name: name,
           email: email,
+          role:"customer",
           created_At: new Date(),
         })
           
