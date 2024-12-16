@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield } from "lucide-react";
 
+
 export const metadata: Metadata = {
   title: "Business Sign Up | SafeBook",
   description: "Create your SafeBook business account to manage appointments",
 };
 
 export default function BusinessSignUp() {
+  
+
   return (
     <div className="container mx-auto flex flex-col items-center justify-center min-h-screen py-2">
       <div className="w-full max-w-md space-y-8">
@@ -23,7 +26,7 @@ export default function BusinessSignUp() {
             Sign up to start managing appointments with SafeBook
           </p>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST">
+        <form className="mt-8 space-y-6" action="#" >
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <Label
