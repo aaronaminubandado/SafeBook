@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { BusinessDashboard } from "@/components/business-dashboard";
+import RequireAuth from "@/components/RequireAuth";
 
 export const metadata: Metadata = {
   title: "Business Dashboard | SafeBook",
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return <BusinessDashboard />;
+  return (
+    <RequireAuth>
+  <BusinessDashboard />
+  </RequireAuth>
+);
 }
