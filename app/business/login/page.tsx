@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Shield, Briefcase } from "lucide-react";
+import { Shield, Briefcase } from 'lucide-react';
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Business Login | SafeBook",
@@ -12,8 +13,11 @@ export const metadata: Metadata = {
 
 export default function BusinessLogin() {
   return (
-    <div className="container mx-auto flex flex-col items-center justify-center min-h-screen py-2">
-      <div className="w-full max-w-md space-y-8">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gray-50 dark:bg-gray-900">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md space-y-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center space-y-2 text-center">
           <div className="relative">
             <Shield className="h-16 w-16 text-blue-600 dark:text-blue-400" />
@@ -31,7 +35,7 @@ export default function BusinessLogin() {
             <div>
               <Label
                 htmlFor="businessId"
-                className="text-gray-900 dark:text-white"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Business ID
               </Label>
@@ -41,12 +45,15 @@ export default function BusinessLogin() {
                 type="text"
                 autoComplete="organization"
                 required
-                className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 placeholder="Your unique business ID"
               />
             </div>
             <div>
-              <Label htmlFor="email" className="text-gray-900 dark:text-white">
+              <Label 
+                htmlFor="email" 
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Business Email
               </Label>
               <Input
@@ -55,14 +62,14 @@ export default function BusinessLogin() {
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 placeholder="business@example.com"
               />
             </div>
             <div>
               <Label
                 htmlFor="password"
-                className="text-gray-900 dark:text-white"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Password
               </Label>
@@ -72,7 +79,7 @@ export default function BusinessLogin() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="mt-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
                 placeholder="••••••••"
               />
             </div>
@@ -84,7 +91,7 @@ export default function BusinessLogin() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:ring-offset-gray-900 dark:focus:ring-blue-400"
               />
               <label
                 htmlFor="remember-me"
@@ -128,3 +135,4 @@ export default function BusinessLogin() {
     </div>
   );
 }
+
