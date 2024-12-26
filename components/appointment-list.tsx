@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -18,25 +18,96 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { db } from '@/config/firebaseConfiguration'
+import { collection, getDocs, getDoc, query, where, Timestamp, doc, DocumentReference } from 'firebase/firestore'
 
-// Mock data for appointments
-const mockAppointments = [
-  { id: 1, customerName: 'John Doe', service: 'Haircut', date: new Date(2023, 5, 15, 10, 0) },
-  { id: 2, customerName: 'Jane Smith', service: 'Manicure', date: new Date(2023, 5, 15, 11, 30) },
-  { id: 3, customerName: 'Bob Johnson', service: 'Massage', date: new Date(2023, 5, 16, 14, 0) },
-]
+type AppointmentData = {
+  id: string
+  customer: DocumentReference
+  service: string
+  date: Timestamp
+  business: any // Reference to the business document
+  businessName?: string
+  customerName?: string
+}
+
+interface UserData {
+  name: string
+  role: string
+}
 
 export function AppointmentList() {
+  const [appointments, setAppointments] = useState<AppointmentData[]>([])
+  const [loading, setLoading] = useState(true)
   const [date, setDate] = useState<Date>()
 
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      setLoading(true)
+      try {
+        const appointmentsRef = collection(db, 'Appointments')
+        const q = query(appointmentsRef)
+        const querySnapshot = await getDocs(q)
+
+        // Fetch all appointments
+        const appointmentsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as AppointmentData[]
+
+        // Fetch customer details for each appointment
+        const appointmentsWithCustomers = await Promise.all(
+          appointmentsData.map(async (appointment) => {
+            try {
+              const userDoc = await getDoc(appointment.customer)
+              if (userDoc.exists()) {
+                const userData = userDoc.data() as UserData
+                if (userData.role === 'customer') {
+                  return {
+                    ...appointment,
+                    customerName: userData.name,
+                  }
+                }
+              }
+              return {
+                ...appointment,
+                customerName: 'Unknown Customer',
+              }
+            } catch (error) {
+              console.error('Error fetching customer details:', error)
+              return {
+                ...appointment,
+                customerName: 'Unknown Customer',
+              }
+            }
+          })
+        )
+
+        setAppointments(appointmentsWithCustomers)
+      } catch (error) {
+        console.error('Error fetching appointments:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAppointments()
+  }, [])
+
   const filteredAppointments = date
-    ? mockAppointments.filter(
-        (appointment) =>
-          appointment.date.getDate() === date.getDate() &&
-          appointment.date.getMonth() === date.getMonth() &&
-          appointment.date.getFullYear() === date.getFullYear()
-      )
-    : mockAppointments
+    ? appointments.filter((appointment) => {
+        const appointmentDate = new Date(appointment.date.toDate())
+        return (
+          appointmentDate.getDate() === date.getDate() &&
+          appointmentDate.getMonth() === date.getMonth() &&
+          appointmentDate.getFullYear() === date.getFullYear()
+        )
+      })
+    : appointments
+
+  if (loading) {
+    return <p>Loading appointments...</p>
+  }
 
   return (
     <div className="space-y-4">
@@ -69,7 +140,9 @@ export function AppointmentList() {
             <TableRow key={appointment.id}>
               <TableCell>{appointment.customerName}</TableCell>
               <TableCell>{appointment.service}</TableCell>
-              <TableCell>{format(appointment.date, 'PPP p')}</TableCell>
+              <TableCell>
+                {format(appointment.date.toDate(), 'PPP p')}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -77,4 +150,3 @@ export function AppointmentList() {
     </div>
   )
 }
-
