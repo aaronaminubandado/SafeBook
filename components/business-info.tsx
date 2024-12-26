@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/config/firebaseConfiguration";
+import { onAuthStateChanged } from "firebase/auth";
 
 export function BusinessInfo() {
   const [businessInfo, setBusinessInfo] = useState({
@@ -15,7 +18,56 @@ export function BusinessInfo() {
     email: "",
     website: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Listen for authentication state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch business info from Firestore
+  useEffect(() => {
+    const fetchBusinessInfo = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setBusinessInfo({
+            name: data.businessName || "",
+            description: data.businessType || "",
+            address: data.address || "",
+            phone: data.phoneNumber || "",
+            email: data.email || "",
+            website: data.website || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching business info:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusinessInfo();
+  }, [userId]);
+
+  // Handle form changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -23,11 +75,37 @@ export function BusinessInfo() {
     setBusinessInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Update business info in Firestore
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log("Business info submitted:", businessInfo);
+    if (!userId) {
+      console.error("No user is signed in.");
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, "users", userId);
+      await setDoc(
+        userDocRef,
+        {
+          businessName: businessInfo.name,
+          businessType: businessInfo.description,
+          address: businessInfo.address,
+          phoneNumber: businessInfo.phone,
+          email: businessInfo.email,
+          website: businessInfo.website,
+        },
+        { merge: true }
+      );
+      console.log("Business info updated successfully");
+    } catch (error) {
+      console.error("Error updating business info:", error);
+    }
   };
+
+  if (loading) {
+    return <p>Loading business information...</p>;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

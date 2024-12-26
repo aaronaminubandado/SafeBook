@@ -24,9 +24,9 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
         const userRole = userDoc.data()?.role;
 
         if (userRole === "customer") {
-          router.push("/business/dashboard");
-        } else {
           router.push("/customer");
+        } else {
+          router.push("/business/dashboard");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);

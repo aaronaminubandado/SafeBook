@@ -66,7 +66,9 @@ export default function BusinessSignUp() {
     <div className="container mx-auto flex flex-col items-center justify-center min-h-screen py-2">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center space-y-2 text-center">
+            <Link href={"/"}>
           <Shield className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Create your Business Account
           </h1>
