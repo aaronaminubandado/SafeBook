@@ -1,43 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingForm } from "@/components/booking-form";
-
-// Mock data for businesses
-const mockBusinesses = [
-  { id: 1, name: "Stylish Cuts", category: "Hair Salon", rating: 4.5 },
-  { id: 2, name: "Zen Massage", category: "Massage Therapy", rating: 4.8 },
-  { id: 3, name: "Nail Paradise", category: "Nail Salon", rating: 4.2 },
-];
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/config/firebaseConfiguration";
 
 export function SearchBooking() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState(mockBusinesses);
-  const [selectedBusiness, setSelectedBusiness] = useState<
-    (typeof mockBusinesses)[0] | null
-  >(null);
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [selectedBusiness, setSelectedBusiness] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch businesses from Firestore
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      setLoading(true);
+      try {
+        const businessesRef = collection(db, "users");
+        const q = query(businessesRef, where("role", "==", "business"));
+        const querySnapshot = await getDocs(q);
+
+        const fetchedBusinesses = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setBusinesses(fetchedBusinesses);
+        setSearchResults(fetchedBusinesses);
+      } catch (error) {
+        console.error("Error fetching businesses:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusinesses();
+  }, []);
+
+  // Handle search
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const filteredResults = mockBusinesses.filter(
+    const filteredResults = businesses.filter(
       (business) =>
-        business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        business.category.toLowerCase().includes(searchTerm.toLowerCase())
+        business.businessName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        business.businessType.toLowerCase().includes(searchTerm.toLowerCase())
+      // ||
+      // business.services.some((service: string) =>
+      //   service.toLowerCase().includes(searchTerm.toLowerCase())
+      // )
     );
     setSearchResults(filteredResults);
   };
 
-  const handleSelectBusiness = (business: (typeof mockBusinesses)[0]) => {
+  // Select business for booking
+  const handleSelectBusiness = (business: any) => {
     setSelectedBusiness(business);
   };
 
+  // Back to search results
   const handleBackToSearch = () => {
     setSelectedBusiness(null);
   };
+
+  if (loading) {
+    return <p>Loading businesses...</p>;
+  }
 
   if (selectedBusiness) {
     return (
@@ -48,12 +81,13 @@ export function SearchBooking() {
         </Button>
         <Card>
           <CardHeader>
-            <CardTitle>{selectedBusiness.name}</CardTitle>
+            <CardTitle>{selectedBusiness.businessName}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              {selectedBusiness.category}
+              {selectedBusiness.businessType}
             </p>
+            <p className="text-sm font-bold">Services:</p>
             <BookingForm businessId={selectedBusiness.id} />
           </CardContent>
         </Card>
@@ -66,7 +100,7 @@ export function SearchBooking() {
       <form onSubmit={handleSearch} className="flex space-x-2">
         <Input
           type="text"
-          placeholder="Search for a business or service"
+          placeholder="Search for a business, service, or category"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-grow"
@@ -80,13 +114,25 @@ export function SearchBooking() {
         {searchResults.map((business) => (
           <Card key={business.id}>
             <CardHeader>
-              <CardTitle>{business.name}</CardTitle>
+              <CardTitle>{business.businessName}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {business.category}
+                {business.businessType}
               </p>
-              <p className="text-sm">Rating: {business.rating}/5</p>
+              <p className="text-sm font-bold mt-2">Services:</p>
+              <ul className="list-disc pl-5">
+                {business.services
+                  ?.slice(0, 3)
+                  .map((service: string, index: number) => (
+                    <li
+                      key={index}
+                      className="text-sm text-gray-700 dark:text-gray-300"
+                    >
+                      {service}
+                    </li>
+                  ))}
+              </ul>
               <Button
                 className="mt-4 w-full"
                 onClick={() => handleSelectBusiness(business)}
