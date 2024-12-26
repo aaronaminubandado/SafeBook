@@ -38,7 +38,7 @@ export function BusinessDashboard() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Available Slots
@@ -49,22 +49,22 @@ export function BusinessDashboard() {
             <div className="text-2xl font-bold">45</div>
             <p className="text-xs text-muted-foreground">For the next 7 days</p>
           </CardContent>
-        </Card>
+        </Card> */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Upcoming Appointments
+               Appointments
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
+            {/* <p className="text-xs text-muted-foreground">
               In the next 24 hours
-            </p>
+            </p> */}
           </CardContent>
         </Card>
-        <Card>
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Profile Completion
@@ -77,7 +77,7 @@ export function BusinessDashboard() {
               13 out of 15 fields completed
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-10">
         <TabsList>
